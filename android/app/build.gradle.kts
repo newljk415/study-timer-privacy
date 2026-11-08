@@ -69,6 +69,8 @@ android {
         unitTests.all {
             // Robolectric 런타임이 받는 android-all jar도 같은 미러 사용(TLS 유지)
             it.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2/")
+            // API 37 런타임(ApplicationSharedMemory)이 JDK 21에서 FileDescriptor 내부(SharedSecrets)에 접근하도록 허용(테스트 JVM 한정)
+            it.jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED")
         }
     }
     buildFeatures {
@@ -99,6 +101,9 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)
+    // Compose ui-test가 끌어오는 Espresso 3.5.0은 API 37에서 제거된 InputManager.getInstance()를 호출함
+    testImplementation(libs.espresso.core)
+    testImplementation(libs.androidx.test.core)
     debugImplementation(libs.compose.ui.test.manifest)
 }
 

@@ -31,7 +31,7 @@ SDK 요구사항
 - `compileSdk = 37` (`platforms;android-37.0`): Compose 1.12/AndroidX core 1.19가 API 37 이상으로 컴파일할 것을 요구합니다.
 - `targetSdk = 37`: Google Play 최소 요건(“신규 앱과 앱 업데이트는 Android 16(API 36) 이상을 타깃해야 함”, 2026-11 확인:
   https://support.google.com/googleplay/android-developer/answer/11926878)을 충족하는 최신 API. API 37 동작 변경은 실기기(Android 17)에서 확인이 필요합니다.
-  Robolectric UI 테스트는 `@Config(sdk = [35])` 런타임으로 실행합니다.
+  Robolectric UI 테스트도 `@Config(sdk = [37])` 런타임으로 실행합니다(JDK 21용 `--add-exports java.base/jdk.internal.access`, Espresso 3.7.0 필요).
 - `minSdk = 26`, build-tools 36.0.0(AGP가 자동 설치), platform-tools.
 
 ```bash

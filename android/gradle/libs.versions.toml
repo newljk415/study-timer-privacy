@@ -6,6 +6,8 @@ coreKtx = "1.19.1"
 activityCompose = "1.13.0"
 junit = "4.13.2"
 robolectric = "4.17"
+espresso = "3.7.0"
+androidxTestCore = "1.7.0"
 billing = "9.1.0"
 playAds = "25.5.0"
 ump = "4.0.0"
@@ -33,6 +35,8 @@ coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", ve
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playAds" }
 ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "ump" }
 billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
+espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTestCore" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }

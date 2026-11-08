@@ -25,13 +25,17 @@ import org.robolectric.annotation.Config
 
 /** 실기기 대신 Robolectric으로 기본 화면과 핵심 타이머 흐름(UI ↔ 컨트롤러)을 확인한다. */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
+@Config(sdk = [37])
 class TimerScreenTest {
     @get:Rule val rule = createComposeRule()
 
     private val time = FakeTime(wall = 1_800_000_000_000L)
     private val store = InMemoryStore()
     private val controller = TimerController(store, time, { Durations.DEFAULT })
+
+    @Test fun runsOnApi37Runtime() {
+        assertEquals(37, android.os.Build.VERSION.SDK_INT)
+    }
 
     @Test fun startPauseResumeResetFlow() {
         runBlocking { controller.refresh() }
