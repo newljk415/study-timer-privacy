@@ -31,6 +31,18 @@ android {
         buildConfigField("String", "PLAY_LICENSE_PUBLIC_KEY", "\"$playLicenseKey\"")
     }
 
+    // 배포 서명: 사용자가 별도 보관 중인 기존 키를 외부 속성으로만 연결한다(키·비밀번호는 저장소에 두지 않음).
+    // 값이 없으면 release는 서명되지 않은 산출물이 되며, debug는 SDK가 자동 생성한 디버그 키로 서명된다.
+    val storeFilePath = prop("studytimer.signing.storeFile")
+    if (storeFilePath != null) {
+        signingConfigs.create("release") {
+            storeFile = file(storeFilePath)
+            storePassword = prop("studytimer.signing.storePassword")
+            keyAlias = prop("studytimer.signing.keyAlias")
+            keyPassword = prop("studytimer.signing.keyPassword")
+        }
+    }
+
     buildTypes {
         debug {
             manifestPlaceholders["admobAppId"] = testAdmobAppId
@@ -42,6 +54,7 @@ android {
             manifestPlaceholders["admobAppId"] = releaseAdmobAppId ?: "MISSING"
             buildConfigField("String", "BANNER_AD_UNIT_ID", "\"${releaseBannerId ?: ""}\"")
             buildConfigField("String", "UMP_TEST_DEVICE_HASHED_ID", "\"\"")
+            signingConfigs.findByName("release")?.let { signingConfig = it }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -50,6 +63,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            // Robolectric 런타임이 받는 android-all jar도 같은 미러 사용(TLS 유지)
+            it.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2/")
+        }
     }
     buildFeatures {
         compose = true
@@ -76,6 +96,10 @@ dependencies {
     implementation(libs.billing)
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 val verifyReleaseConfig = tasks.register("verifyReleaseConfig") {
