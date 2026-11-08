@@ -21,6 +21,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import com.android.billingclient.api.BillingClient
+import kotlinx.coroutines.launch
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -77,13 +80,14 @@ class MainActivity : ComponentActivity() {
         val ads = container.ads
         val adsReady by ads.sdkReady.collectAsStateWithLifecycle()
         val privacyRequired by ads.privacyOptionsRequired.collectAsStateWithLifecycle()
-        val adsRemoved = s.removeAdsCached
+        val billing by container.entitlements.state.collectAsStateWithLifecycle()
+        val adsRemoved = s.removeAdsCached // 검증된 권한의 영속 캐시(재조회 성공 시 갱신)
         // 광고 제거 권한이 확인되면 동의 수집·광고 요청을 하지 않는다.
         LaunchedEffect(adsRemoved) { if (!adsRemoved) ads.gatherConsent(this@MainActivity) }
         val showBanner = adsReady && !adsRemoved && ads.configured
 
         LifecycleResumeEffect(Unit) {
-            vm.onResume(); notifAllowed = Notifications.canPost(this@MainActivity)
+            vm.onResume(); container.appScope.launch { container.entitlements.refresh() }; notifAllowed = Notifications.canPost(this@MainActivity)
             onPauseOrDispose { }
         }
         LaunchedEffect(Unit) { vm.completionEvents.collect { CompletionFeedback.play(this@MainActivity, vm.settings.value ?: s) } }
@@ -133,8 +137,23 @@ class MainActivity : ComponentActivity() {
                     versionName = BuildConfig.VERSION_NAME,
                     modifier = m,
                     monetization = {
+                        HorizontalDivider(); Section("광고")
+                        if (adsRemoved) {
+                            Text("광고 제거가 적용되었습니다. 감사합니다!")
+                        } else {
+                            val price = billing.offer?.formattedPrice
+                            Button(
+                                onClick = ::purchase, enabled = price != null && !billing.busy,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) { Text(if (price != null) "광고 제거 구매 ($price)" else "광고 제거 (가격 확인 중)") }
+                            if (billing.pending) Text("결제가 대기 중입니다. 결제가 완료되어 확인되면 광고가 제거됩니다.")
+                        }
+                        OutlinedButton(
+                            onClick = { container.appScope.launch { container.entitlements.refresh(userInitiated = true) } },
+                            enabled = !billing.busy, modifier = Modifier.fillMaxWidth(),
+                        ) { Text("구매 복원") }
+                        billing.message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
                         if (!adsRemoved && privacyRequired) {
-                            HorizontalDivider(); Section("광고")
                             OutlinedButton(onClick = { ads.showPrivacyOptions(this@MainActivity) }, Modifier.fillMaxWidth()) {
                                 Text("광고 개인정보 선택")
                             }
@@ -151,6 +170,14 @@ class MainActivity : ComponentActivity() {
                 confirmButton = { TextButton(onClick = { confirmExit = false; vm.exit { finishAndRemoveTask() } }) { Text("종료") } },
                 dismissButton = { TextButton(onClick = { confirmExit = false }) { Text("취소") } },
             )
+        }
+    }
+
+    private fun purchase() {
+        val offer = container.entitlements.state.value.offer ?: return
+        val code = container.billingGateway.launch(this, offer)
+        if (code != BillingClient.BillingResponseCode.OK) {
+            container.entitlements.postMessage("결제 화면을 열지 못했습니다. (코드 $code)")
         }
     }
 

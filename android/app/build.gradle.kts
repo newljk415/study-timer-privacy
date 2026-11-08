@@ -15,6 +15,8 @@ val testAdmobAppId = "ca-app-pub-3940256099942544~3347511713"       // Google �
 val testBannerId = "ca-app-pub-3940256099942544/9214589741"          // Google 공식 테스트 적응형 배너
 val releaseAdmobAppId = prop("studytimer.admob.appId")
 val releaseBannerId = prop("studytimer.admob.bannerId")
+// Play Console > 수익 창출 설정 > 라이선스의 Base64 RSA 공개 키(비밀 아님). 없으면 구매 권한을 부여하지 않는다.
+val playLicenseKey = prop("studytimer.play.licenseKey") ?: ""
 
 android {
     namespace = "com.newljk415.studytimer"
@@ -26,6 +28,7 @@ android {
         targetSdk = 36
         versionCode = 5
         versionName = "1.0.4"
+        buildConfigField("String", "PLAY_LICENSE_PUBLIC_KEY", "\"$playLicenseKey\"")
     }
 
     buildTypes {
@@ -70,6 +73,7 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.play.services.ads)
     implementation(libs.ump)
+    implementation(libs.billing)
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
 }
@@ -79,6 +83,7 @@ val verifyReleaseConfig = tasks.register("verifyReleaseConfig") {
     val missing = buildList {
         if (releaseAdmobAppId == null || releaseAdmobAppId.contains("3940256099942544")) add("studytimer.admob.appId")
         if (releaseBannerId == null || releaseBannerId.contains("3940256099942544")) add("studytimer.admob.bannerId")
+        if (playLicenseKey.isEmpty()) add("studytimer.play.licenseKey")
     }
     doLast {
         if (missing.isNotEmpty()) throw GradleException(

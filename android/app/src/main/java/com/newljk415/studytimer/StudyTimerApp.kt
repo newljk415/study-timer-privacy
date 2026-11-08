@@ -3,6 +3,14 @@ package com.newljk415.studytimer
 import android.app.Application
 import android.content.Context
 import com.newljk415.studytimer.ads.AdsManager
+import com.newljk415.studytimer.billing.EntitlementCache
+import com.newljk415.studytimer.billing.EntitlementManager
+import com.newljk415.studytimer.billing.PlayBillingGateway
+import com.newljk415.studytimer.billing.PurchaseVerifier
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import com.newljk415.studytimer.data.AndroidTimeSource
 import com.newljk415.studytimer.data.RoomTimerStore
 import com.newljk415.studytimer.data.SettingsRepository
@@ -20,6 +28,25 @@ class AppContainer(context: Context) {
     val settings = SettingsRepository(app)
     val scheduler = AlarmCompletionScheduler(app)
     val ads = AdsManager(app)
+    val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    val billingGateway by lazy { PlayBillingGateway(app) }
+    val entitlements by lazy {
+        EntitlementManager(
+            billingGateway,
+            PurchaseVerifier(BuildConfig.PLAY_LICENSE_PUBLIC_KEY, app.packageName),
+            object : EntitlementCache {
+                override suspend fun get() = settings.current().removeAdsCached
+                override suspend fun set(value: Boolean) { settings.setRemoveAdsCached(value) }
+            },
+        ).also { m ->
+            appScope.launch { m.loadCache() }
+            appScope.launch { billingGateway.updates.collect { u ->
+                m.onUpdate(u)
+                // 콜백 후 항상 전체 재조회로 상태를 확정(이미 소유·중복 콜백 포함)
+                m.refresh()
+            } }
+        }
+    }
     val controller = TimerController(store, time, { settings.current().durations }, scheduler)
 }
 
