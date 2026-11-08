@@ -16,7 +16,7 @@ Kotlin + Jetpack Compose 한국어 공부 타이머. 이 디렉터리(`android/`
 | 구성 | 버전 | 비고 |
 |---|---|---|
 | JDK | 21 (Gradle 실행) | 바이트코드 타깃 Java 17 |
-| Gradle (Wrapper) | 9.6.1 | AGP 9.5 최소 요구 9.6.0 |
+| Gradle (Wrapper) | 9.9.0 | AGP 9.5 최소 요구 9.6.0 |
 | Android Gradle Plugin | 9.5.1 | 내장 Kotlin 지원 사용 |
 | Kotlin / Compose 컴파일러 플러그인 | 2.4.21 | |
 | KSP | 2.3.13 | Room 코드 생성 |
@@ -45,9 +45,9 @@ echo "sdk.dir=$ANDROID_HOME" > local.properties
 ```
 
 ### 공급망 무결성
-- `gradle-wrapper.properties`에 `distributionSha256Sum`(공식 `gradle-9.6.1-bin.zip.sha256`)을 고정해 배포 파일을 검증합니다.
-- `gradle/wrapper/gradle-wrapper.jar`는 Gradle 9.6.1이 생성했으며 SHA-256
-  `497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7`이 공식 `gradle-9.6.1-wrapper.jar.sha256`과 일치함을 확인했습니다. 이 jar는 반드시 추적합니다.
+- `gradle-wrapper.properties`에 `distributionSha256Sum`(공식 `gradle-9.9.0-bin.zip.sha256`)을 고정해 배포 파일을 검증합니다.
+- `gradle/wrapper/gradle-wrapper.jar`는 Gradle 9.9.0이 생성했으며 SHA-256
+  `621008afc4f5d59357fcf06ffa644dd5aade5e091bdc363742710445f73cdaf8`이 공식 `gradle-9.9.0-wrapper.jar.sha256`과 일치함을 확인했습니다. 이 jar는 반드시 추적합니다.
 - 의존성은 Google Maven, Maven Central(HTTPS)에서만 받습니다. TLS·체크섬 검증은 끄지 않았습니다.
 - 예외: 테스트 전용 `org.robolectric` 그룹은 공유 IP에서 Maven Central의 per-IP 다운로드 한도(HTTP 429)에 걸려
   Google이 운영하는 Maven Central 미러(`maven-central.storage-download.googleapis.com`)에서 받습니다(내용 동일, SHA-1 대조 확인).
