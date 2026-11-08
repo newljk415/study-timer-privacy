@@ -29,8 +29,9 @@ Kotlin + Jetpack Compose 한국어 공부 타이머. 이 디렉터리(`android/`
 
 SDK 요구사항
 - `compileSdk = 37` (`platforms;android-37.0`): Compose 1.12/AndroidX core 1.19가 API 37 이상으로 컴파일할 것을 요구합니다.
-- `targetSdk = 36`: Google Play 공식 요건(“신규 앱과 앱 업데이트는 Android 16(API 36) 이상을 타깃해야 함”, 2026-11 확인:
-  https://support.google.com/googleplay/android-developer/answer/11926878). API 37 타깃은 실기기 동작 검증 후 올리세요(lint `OldTargetApi` 경고는 이 의도적 선택 때문).
+- `targetSdk = 37`: Google Play 최소 요건(“신규 앱과 앱 업데이트는 Android 16(API 36) 이상을 타깃해야 함”, 2026-11 확인:
+  https://support.google.com/googleplay/android-developer/answer/11926878)을 충족하는 최신 API. API 37 동작 변경은 실기기(Android 17)에서 확인이 필요합니다.
+  Robolectric UI 테스트는 `@Config(sdk = [35])` 런타임으로 실행합니다.
 - `minSdk = 26`, build-tools 36.0.0(AGP가 자동 설치), platform-tools.
 
 ```bash

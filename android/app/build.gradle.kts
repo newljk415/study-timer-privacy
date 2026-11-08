@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.newljk415.studytimer"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 5
         versionName = "1.0.4"
         buildConfigField("String", "PLAY_LICENSE_PUBLIC_KEY", "\"$playLicenseKey\"")
