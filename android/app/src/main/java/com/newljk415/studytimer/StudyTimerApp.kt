@@ -6,7 +6,8 @@ import com.newljk415.studytimer.data.AndroidTimeSource
 import com.newljk415.studytimer.data.RoomTimerStore
 import com.newljk415.studytimer.data.SettingsRepository
 import com.newljk415.studytimer.data.TimerDatabase
-import com.newljk415.studytimer.domain.CompletionScheduler
+import com.newljk415.studytimer.notify.AlarmCompletionScheduler
+import com.newljk415.studytimer.notify.Notifications
 import com.newljk415.studytimer.domain.TimerController
 
 /** 수동 DI 컨테이너. 프로세스당 하나. */
@@ -16,10 +17,8 @@ class AppContainer(context: Context) {
     val db = TimerDatabase.create(app)
     val store = RoomTimerStore(db)
     val settings = SettingsRepository(app)
-    var scheduler: CompletionScheduler? = null
-    val controller by lazy {
-        TimerController(store, time, { settings.current().durations }, scheduler)
-    }
+    val scheduler = AlarmCompletionScheduler(app)
+    val controller = TimerController(store, time, { settings.current().durations }, scheduler)
 }
 
 class StudyTimerApp : Application() {
@@ -29,6 +28,7 @@ class StudyTimerApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        Notifications.createChannel(this)
     }
 }
 
