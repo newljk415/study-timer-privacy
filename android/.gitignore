@@ -1,0 +1,38 @@
+# Gradle / build outputs
+.gradle/
+.kotlin/
+build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.apks
+output-metadata.json
+mapping.txt
+
+# Local machine config (each developer creates their own)
+local.properties
+
+# Signing keys and secrets: never commit
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+keystore.properties
+signing.properties
+secrets.properties
+*.password
+google-services.json
+play-service-account*.json
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+*.hprof
+
+# Keep the Gradle Wrapper jar tracked
+!gradle/wrapper/gradle-wrapper.jar
