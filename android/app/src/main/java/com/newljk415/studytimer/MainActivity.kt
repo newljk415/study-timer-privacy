@@ -14,7 +14,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -33,7 +38,9 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.newljk415.studytimer.ads.BannerAd
 import com.newljk415.studytimer.data.AppSettings
+import com.newljk415.studytimer.ui.Section
 import com.newljk415.studytimer.domain.TimerStatus
 import com.newljk415.studytimer.notify.CompletionFeedback
 import com.newljk415.studytimer.notify.Notifications
@@ -67,6 +74,13 @@ class MainActivity : ComponentActivity() {
         val timer by vm.timer.collectAsStateWithLifecycle()
         val days by vm.last7Days.collectAsStateWithLifecycle()
         val running = timer.snapshot?.status == TimerStatus.RUNNING
+        val ads = container.ads
+        val adsReady by ads.sdkReady.collectAsStateWithLifecycle()
+        val privacyRequired by ads.privacyOptionsRequired.collectAsStateWithLifecycle()
+        val adsRemoved = s.removeAdsCached
+        // 광고 제거 권한이 확인되면 동의 수집·광고 요청을 하지 않는다.
+        LaunchedEffect(adsRemoved) { if (!adsRemoved) ads.gatherConsent(this@MainActivity) }
+        val showBanner = adsReady && !adsRemoved && ads.configured
 
         LifecycleResumeEffect(Unit) {
             vm.onResume(); notifAllowed = Notifications.canPost(this@MainActivity)
@@ -89,14 +103,15 @@ class MainActivity : ComponentActivity() {
             vm.startOrResume()
         }
 
-        Scaffold(bottomBar = {
+        Scaffold(bottomBar = { Column {
+            if (showBanner) BannerAd(BuildConfig.BANNER_AD_UNIT_ID)
             NavigationBar {
                 listOf("⏱" to "타이머", "📊" to "기록", "⚙" to "설정").forEachIndexed { i, (icon, label) ->
                     NavigationBarItem(selected = tab == i, onClick = { tab = i },
                         icon = { Text(icon, Modifier.clearAndSetSemantics { }) }, label = { Text(label) })
                 }
             }
-        }) { pad ->
+        } }) { pad ->
             val m = Modifier.padding(pad)
             when (tab) {
                 0 -> TimerScreen(timer, start, vm::pause, vm::reset, m)
@@ -117,6 +132,14 @@ class MainActivity : ComponentActivity() {
                     onExit = { confirmExit = true },
                     versionName = BuildConfig.VERSION_NAME,
                     modifier = m,
+                    monetization = {
+                        if (!adsRemoved && privacyRequired) {
+                            HorizontalDivider(); Section("광고")
+                            OutlinedButton(onClick = { ads.showPrivacyOptions(this@MainActivity) }, Modifier.fillMaxWidth()) {
+                                Text("광고 개인정보 선택")
+                            }
+                        }
+                    },
                 )
             }
         }

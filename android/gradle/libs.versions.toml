@@ -5,6 +5,8 @@ composeBom = "2026.09.00"
 coreKtx = "1.19.1"
 activityCompose = "1.13.0"
 junit = "4.13.2"
+playAds = "25.5.0"
+ump = "4.0.0"
 lifecycle = "2.11.0"
 room = "2.8.5"
 datastore = "1.3.0"
@@ -26,6 +28,8 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playAds" }
+ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "ump" }
 junit = { module = "junit:junit", version.ref = "junit" }
 
 [plugins]

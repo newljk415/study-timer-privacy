@@ -2,6 +2,7 @@ package com.newljk415.studytimer
 
 import android.app.Application
 import android.content.Context
+import com.newljk415.studytimer.ads.AdsManager
 import com.newljk415.studytimer.data.AndroidTimeSource
 import com.newljk415.studytimer.data.RoomTimerStore
 import com.newljk415.studytimer.data.SettingsRepository
@@ -18,6 +19,7 @@ class AppContainer(context: Context) {
     val store = RoomTimerStore(db)
     val settings = SettingsRepository(app)
     val scheduler = AlarmCompletionScheduler(app)
+    val ads = AdsManager(app)
     val controller = TimerController(store, time, { settings.current().durations }, scheduler)
 }
 
